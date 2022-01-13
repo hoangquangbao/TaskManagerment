@@ -18,7 +18,8 @@ class TaskViewModel: ObservableObject{
     //Filtering Today Tasks
     @Published var filteredTasks: [Task]?
     
-    //MA
+    //MARK: New Task View
+    @Published var isAddNewTask: Bool = false
     
     //MARK: Initializing
     init(){
