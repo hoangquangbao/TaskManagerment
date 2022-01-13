@@ -43,6 +43,20 @@ struct Home: View {
         .edgesIgnoringSafeArea(.top)
         //or
         //.ignoresSafeArea()
+        .overlay(
+            
+            Button(action: {
+                
+            }, label: {
+                
+                Image(systemName: "plus")
+                    .foregroundColor(.white)
+                    .padding()
+                    .background(Color.black, in: Circle())
+            })
+                .padding()
+            ,alignment: .bottomTrailing
+        )
 
     }
     
@@ -139,25 +153,31 @@ struct Home: View {
         
         LazyVStack(spacing: 18){
             
-            if let tasks = taskModel.filteredTasks {
+//            if let tasks = taskModel.filteredTasks {
+//
+//                if tasks.isEmpty {
+//
+////                    Text("No tasks found!!!")
+////                        .font(.system(size: 16))
+////                        .fontWeight(.light)
+////                        .offset(y: 100)
+//                } else {
+//
+//                    ForEach(tasks){ task in
+//                        TaskCardView(task: task)
+//                    }
+//                }
+//            } else {
+//
+//                //MARK: Progress View
+//                ProgressView()
+//                    .offset(y: 100)
+//            }
+            
+            //Converting object as Our Task Model
+            DynamicFilteredView(dateToFilter: taskModel.currentDay) { (object: Task) in
                 
-                if tasks.isEmpty {
-                    
-                    Text("No tasks found!!!")
-                        .font(.system(size: 16))
-                        .fontWeight(.light)
-                        .offset(y: 100)
-                } else {
-                    
-                    ForEach(tasks){ task in
-                        TaskCardView(task: task)
-                    }
-                }
-            } else {
-                
-                //MARK: Progress View
-                ProgressView()
-                    .offset(y: 100)
+                TaskCardView(task: object)
             }
         }
         .padding()
