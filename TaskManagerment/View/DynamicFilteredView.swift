@@ -17,8 +17,20 @@ struct DynamicFilteredView<Content: View,T>: View where T: NSManagedObject {
     //MARK: Building Custom ForEach which will give CoreData object to build View
     init(dateToFilter: Date, @ViewBuilder content: @escaping (T)->Content){
         
+        //MARK: Predicate to Filter current date Tasks
+        let calendar = Calendar.current
+        
+        let today = calendar.startOfDay(for: dateToFilter)
+        let tomorrow = calendar.date(byAdding: .day, value: 1, to: dateToFilter)
+        
+        //Filter Key
+        let filterKey = "taskDate"
+        
+        //This will fetch task between today and tommorow which is 24 HRS
+        let predicate = NSPredicate(format: "\(filterKey) >= %@ AND \(filterKey) < %@", argumentArray: [today, tomorrow])
+        
         //Intializing Request With NSPredicate
-        _request = FetchRequest(entity: T.entity(), sortDescriptors: [], predicate: nil)
+        _request = FetchRequest(entity: T.entity(), sortDescriptors: [], predicate: predicate)
         self.content = content
     }
     

@@ -9,7 +9,12 @@ import SwiftUI
 
 struct NewTask: View {
     
+    //MARK: Dismiss Add New Task View
     @Environment(\.dismiss) var dismiss
+    
+    //MARK: Core Data Context
+    @Environment(\.managedObjectContext) var context
+    
     @State var taskTitle: String = ""
     @State var taskDescription: String = ""
     @State var taskDate: Date = Date()
@@ -50,6 +55,16 @@ struct NewTask: View {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Save"){
                         
+                        let task = Task(context: context)
+                        task.taskTitle = taskTitle
+                        task.taskDescription = taskDescription
+                        task.taskDate = taskDate
+                        
+                        //Saving
+                        try? context.save()
+                        
+                        //Dismissing View
+                        dismiss()
                     }
                     .disabled(taskTitle == "" || taskDescription == "")
                 }
