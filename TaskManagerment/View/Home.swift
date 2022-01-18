@@ -15,6 +15,9 @@ struct Home: View {
     //MARK: Core Data Context
     @Environment(\.managedObjectContext) var context
     
+    //MARK: Edit Button
+    @Environment(\.editMode) var editButton
+    
     var body: some View {
         
         ScrollView(.vertical, showsIndicators: false){
@@ -49,15 +52,27 @@ struct Home: View {
         //.ignoresSafeArea()
         .overlay(
             
-            Button(action: {
-                taskModel.isAddNewTask.toggle()
-            }, label: {
+            VStack{
+                Button(action: {
+                    taskModel.isAddNewTask.toggle()
+                }, label: {
+                    
+                    Image(systemName: "plus")
+                        .foregroundColor(.white)
+                        .padding()
+                        .background(Color.black, in: Circle())
+                })
                 
-                Image(systemName: "plus")
-                    .foregroundColor(.white)
-                    .padding()
-                    .background(Color.black, in: Circle())
-            })
+                Button(action: {
+                    taskModel.isAddNewTask.toggle()
+                }, label: {
+                    
+                    Image(systemName: "slider.vertical.3")
+                        .foregroundColor(.white)
+                        .padding()
+                        .background(Color.black, in: Circle())
+                })
+            }
                 .padding()
             ,alignment: .bottomTrailing
         )
@@ -196,21 +211,58 @@ struct Home: View {
         
         //MARK: Since CoreData Values will give optinal data
         HStack(alignment: .top, spacing: 30){
-            VStack(spacing: 10){
-                Circle()
-                    .fill(taskModel.isCurrentHour(date: task.taskDate ?? Date()) ? .black : .clear)
-                    .frame(width: 15, height: 15)
-                    .background(
-                        Circle()
-                            .stroke(.black, lineWidth: 1)
-                            .padding(-3)
-                    )
-                    .scaleEffect(taskModel.isCurrentHour(date: task.taskDate ?? Date()) ? 1 : 0.6)
+            
+            // If Edit mode enable then showing Delete Button
+            if editButton?.wrappedValue == .active{
                 
-                //Make line to connect in list
-                Rectangle()
-                    .fill(.black)
-                    .frame(width: 3)
+                Button {
+                    
+                } label: {
+                    
+                    Image(systemName: "pencil")
+                        .foregroundColor(.white)
+                        .padding()
+                        .frame(width: 25, height: 25)
+                        .background(
+                            Circle()
+                                .fill(.black)
+                        )
+                        //.background(Color.black, in: Circle())
+                }
+                
+                Button {
+                    
+                } label: {
+                    
+                    Image(systemName: "minus")
+                        .foregroundColor(.white)
+                        .padding()
+                        .frame(width: 25, height: 25)
+//                        .background(
+//                            Circle()
+//                                .fill(.black)
+//                        )
+                        .background(Color.red, in: Circle())
+                }
+
+            } else {
+                
+                VStack(spacing: 10){
+                    Circle()
+                        .fill(taskModel.isCurrentHour(date: task.taskDate ?? Date()) ? (task.isCompleted ? .green : .black) : .clear)
+                        .frame(width: 15, height: 15)
+                        .background(
+                            Circle()
+                                .stroke(.black, lineWidth: 1)
+                                .padding(-3)
+                        )
+                        .scaleEffect(taskModel.isCurrentHour(date: task.taskDate ?? Date()) ? 1 : 0.6)
+                             
+                    //Make line to connect in list
+                    Rectangle()
+                        .fill(.black)
+                        .frame(width: 3)
+                }
             }
             
             VStack{
@@ -255,27 +307,29 @@ struct Home: View {
 //                        .hLeading()
                         
                         //MARK: Check Button
-                        Button {
-                            //Updating Checkmark
-                            task.isCompleted = true
-                            
-                            //Saving
-                            try? context.save()
-                        } label: {
-                            
-                            Image(systemName: "checkmark")
-                                .foregroundStyle(.black)
-                                .padding(10)
-    //                            .background(
-    //                                Color.white
-    //                                    .cornerRadius(10)
-    //                            )
-                                .background(Color.white, in: RoundedRectangle(cornerRadius: 10))
+                        if !task.isCompleted{
+                            Button {
+                                //Updating Checkmark
+                                task.isCompleted = true
+                                
+                                //Saving
+                                try? context.save()
+                            } label: {
+                                
+                                Image(systemName: "checkmark")
+                                    .foregroundStyle(.black)
+                                    .padding(10)
+        //                            .background(
+        //                                Color.white
+        //                                    .cornerRadius(10)
+        //                            )
+                                    .background(Color.white, in: RoundedRectangle(cornerRadius: 10))
+                            }
                         }
                         
-                        Text("Mark Task as Completed")
-                            .font(.system(size: 16, weight: .light))
-                            .foregroundColor(.white)
+                        Text(task.isCompleted ? "Mark as Completed" : "Mark Task as Completed")
+                            .font(.system(size: task.isCompleted ? 14 : 16, weight: .light))
+                            .foregroundColor(task.isCompleted ? .gray : .white)
                             .hLeading()
 
                     }
