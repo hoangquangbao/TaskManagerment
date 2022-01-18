@@ -8,8 +8,12 @@
 import SwiftUI
 
 struct Home: View {
+    
     @StateObject var taskModel = TaskViewModel()
     @Namespace var animation
+    
+    //MARK: Core Data Context
+    @Environment(\.managedObjectContext) var context
     
     var body: some View {
         
@@ -232,27 +236,31 @@ struct Home: View {
                 
                 if taskModel.isCurrentHour(date: task.taskDate ?? Date()){
                     //MARK: Team Members
-                    HStack(spacing: 0){
+                    HStack(spacing: 12){
                         
-                        HStack(spacing: -10){
-                            
-                            ForEach(["User1", "User2", "User3"], id: \.self){ user in
-                                Image(user)
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fill)
-                                    .frame(width: 45, height: 45)
-                                    .clipShape(Circle())
-                                    .background(
-                                        Circle()
-                                            .stroke(.black, lineWidth: 1)
-                                    )
-                            }
-                        }
-                        .hLeading()
+//                        HStack(spacing: -10){
+//
+//                            ForEach(["User1", "User2", "User3"], id: \.self){ user in
+//                                Image(user)
+//                                    .resizable()
+//                                    .aspectRatio(contentMode: .fill)
+//                                    .frame(width: 45, height: 45)
+//                                    .clipShape(Circle())
+//                                    .background(
+//                                        Circle()
+//                                            .stroke(.black, lineWidth: 1)
+//                                    )
+//                            }
+//                        }
+//                        .hLeading()
                         
                         //MARK: Check Button
                         Button {
+                            //Updating Checkmark
+                            task.isCompleted = true
                             
+                            //Saving
+                            try? context.save()
                         } label: {
                             
                             Image(systemName: "checkmark")
@@ -264,6 +272,11 @@ struct Home: View {
     //                            )
                                 .background(Color.white, in: RoundedRectangle(cornerRadius: 10))
                         }
+                        
+                        Text("Mark Task as Completed")
+                            .font(.system(size: 16, weight: .light))
+                            .foregroundColor(.white)
+                            .hLeading()
 
                     }
                     .padding(.top)
