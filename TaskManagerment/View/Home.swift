@@ -58,26 +58,29 @@ struct Home: View {
                 }, label: {
                     
                     Image(systemName: "plus")
-                        .foregroundColor(.white)
+                        .foregroundColor(.black)
                         .padding()
-                        .background(Color.black, in: Circle())
+                        .background(Color.yellow, in: Circle())
                 })
-                
+                                
                 Button(action: {
-                    taskModel.isAddNewTask.toggle()
                 }, label: {
                     
                     Image(systemName: "slider.vertical.3")
-                        .foregroundColor(.white)
+                        .foregroundColor(.black)
                         .padding()
-                        .background(Color.black, in: Circle())
+                        .background(Color.yellow, in: Circle())
                 })
             }
                 .padding()
             ,alignment: .bottomTrailing
         )
         .sheet(isPresented: $taskModel.isAddNewTask) {
+            // Clearing Edit Data
+            taskModel.editTask = nil
+        } content: {
             NewTask()
+                .environmentObject(taskModel)
         }
 
     }
@@ -97,20 +100,22 @@ struct Home: View {
             }
             .hLeading()
             
-            Button {
-                
-            } label: {
-                
-                Image("Profile")
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-                    .frame(width: 45, height: 45)
-                    .clipShape(Circle())
-                    .background(
-                        Circle()
-                            .stroke(.black, lineWidth: 1)
-                    )
-            }
+            EditButton()
+
+//            Button {
+//
+//            } label: {
+//
+//                Image("Profile")
+//                    .resizable()
+//                    .aspectRatio(contentMode: .fill)
+//                    .frame(width: 45, height: 45)
+//                    .clipShape(Circle())
+//                    .background(
+//                        Circle()
+//                            .stroke(.black, lineWidth: 1)
+//                    )
+//            }
         }
         .padding()
         .padding(.top, getSafeArea().top)
@@ -210,41 +215,81 @@ struct Home: View {
     func TaskCardView(task: Task) -> some View {
         
         //MARK: Since CoreData Values will give optinal data
-        HStack(alignment: .top, spacing: 30){
+        HStack(alignment: editButton?.wrappedValue == .active ? .center : .top, spacing: 30){
             
             // If Edit mode enable then showing Delete Button
             if editButton?.wrappedValue == .active{
                 
-                Button {
-                    
-                } label: {
-                    
-                    Image(systemName: "pencil")
-                        .foregroundColor(.white)
-                        .padding()
-                        .frame(width: 25, height: 25)
-                        .background(
-                            Circle()
-                                .fill(.black)
-                        )
-                        //.background(Color.black, in: Circle())
-                }
+                // Edit Button
+//                VStack{
+//                    Button {
+//
+//                    } label: {
+//
+//                        Image(systemName: "pencil")
+//                            .foregroundColor(.white)
+//                            .padding()
+//                            .frame(width: 25, height: 25)
+//                            .background(
+//                                Circle()
+//                                    .fill(.black)
+//                            )
+//                            //.background(Color.black, in: Circle())
+//                    }
+//
+//                    Button {
+//                        //MARK: Deleting Task
+//                        context.delete(task)
+//
+//                        // Saving
+//                        try? context.save()
+//
+//                    } label: {
+//
+//                        Image(systemName: "minus")
+//                            .foregroundColor(.white)
+//                            .padding()
+//                            .frame(width: 25, height: 25)
+//    //                        .background(
+//    //                            Circle()
+//    //                                .fill(.black)
+//    //                        )
+//                            .background(Color.red, in: Circle())
+//                    }
+//                }
                 
-                Button {
+                VStack(spacing: 10){
                     
-                } label: {
+//                    if (task.taskDate ?? Date()) >= Date(){
+//                    if task.taskDate?.compare(Date()) == .orderedDescending || taskModel.isToday(date: task.taskDate ?? Date()){
+                    if task.taskDate?.compare(Date()) == .orderedDescending || Calendar.current.isDateInToday(task.taskDate ?? Date()){
+                        
+                        Button {
+                            
+                            taskModel.editTask = task
+                            taskModel.isAddNewTask.toggle()
+                        } label: {
+                            
+                            Image(systemName: "pencil.circle.fill")
+                                .font(.title)
+                                .foregroundColor(.primary)
+                        }
+                    }
                     
-                    Image(systemName: "minus")
-                        .foregroundColor(.white)
-                        .padding()
-                        .frame(width: 25, height: 25)
-//                        .background(
-//                            Circle()
-//                                .fill(.black)
-//                        )
-                        .background(Color.red, in: Circle())
+                    Button {
+                        //MARK: Deleting Task
+                        context.delete(task)
+                        
+                        // Saving
+                        try? context.save()
+                        
+                    } label: {
+                        
+                        Image(systemName: "minus.circle.fill")
+                            .font(.title)
+                            .foregroundColor(.red)
+                    }
                 }
-
             } else {
                 
                 VStack(spacing: 10){
@@ -353,6 +398,7 @@ struct Home: View {
 struct Home_Previews: PreviewProvider {
     static var previews: some View {
         Home()
+            //.previewDisplayName("iPhone 12 Pro")
     }
 }
 

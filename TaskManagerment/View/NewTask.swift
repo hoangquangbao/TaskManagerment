@@ -15,6 +15,8 @@ struct NewTask: View {
     //MARK: Core Data Context
     @Environment(\.managedObjectContext) var context
     
+    @EnvironmentObject var taskMode: TaskViewModel
+    
     @State var taskTitle: String = ""
     @State var taskDescription: String = ""
     @State var taskDate: Date = Date()
@@ -37,11 +39,14 @@ struct NewTask: View {
                     Text("TASK DESCRIPTION")
                 }
                 
-                Section{
-                    DatePicker("", selection: $taskDate)
-                        .datePickerStyle(.graphical)
-                } header: {
-                    Text("TASK DATE")
+                //Disabling Date for Edit Mode
+                if taskMode.editTask == nil{
+                    Section{
+                        DatePicker("", selection: $taskDate)
+                            .datePickerStyle(.graphical)
+                    } header: {
+                        Text("TASK DATE")
+                    }
                 }
             }
             .listStyle(.insetGrouped)
@@ -55,10 +60,17 @@ struct NewTask: View {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Save"){
                         
-                        let task = Task(context: context)
-                        task.taskTitle = taskTitle
-                        task.taskDescription = taskDescription
-                        task.taskDate = taskDate
+                        if let task = taskMode.editTask{
+                            
+                            task.taskTitle = taskTitle
+                            task.taskDescription = taskDescription
+                        } else {
+                            
+                            let task = Task(context: context)
+                            task.taskTitle = taskTitle
+                            task.taskDescription = taskDescription
+                            task.taskDate = taskDate
+                        }
                         
                         //Saving
                         try? context.save()
@@ -73,6 +85,13 @@ struct NewTask: View {
                     Button("Cancel"){
                         dismiss()
                     }
+                }
+            }
+            .onAppear {
+                if let task = taskMode.editTask{
+                    
+                    taskTitle = task.taskTitle ?? ""
+                    taskDescription = task.taskDescription ?? ""
                 }
             }
         }
